@@ -1,11 +1,11 @@
 import { Routes } from '@angular/router';
 import { Login } from './components/login/login';
-import { App } from './app';
+import { Content } from './components/content/content';
 
 export const routes: Routes = [
     {
         path: '',
-        component: App
+        component: Content
     },
     {
         path: 'login',
