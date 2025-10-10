@@ -1,0 +1,31 @@
+.loading-button {
+  position: relative;
+  min-height: 48px;
+  width: 100%;
+  .button-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .loading-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .loading-text {
+      margin-left: 8px;
+    }
+  }
+
+  mat-spinner {
+    display: inline-block;
+    ::ng-deep circle {
+      stroke: currentColor;
+    }
+  }
+}
+
+.full-width {
+  width: 100%;
+}

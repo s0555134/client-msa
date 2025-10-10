@@ -1,0 +1,16 @@
+<button mat-raised-button
+        [type]="type"
+        [disabled]="disabled || loading"
+        (click)="onClick()"
+        class="loading-button"
+        color="primary">
+  <div class="button-content">
+    @if (loading) {
+         <div class="loading-wrapper">
+            <mat-spinner [diameter]="18" [strokeWidth]="3"></mat-spinner>
+        </div>
+    } @else {
+        <span class="normal-text">{{ text }}</span>
+    }
+  </div>
+</button>

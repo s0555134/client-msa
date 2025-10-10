@@ -1,0 +1,7 @@
+- [x] Create NotificationService in src/app/services/notification.ts
+- [x] Create BadgeComponent: src/app/components/ui/badge/badge.ts
+- [x] Create BadgeComponent: src/app/components/ui/badge/badge.html
+- [x] Create BadgeComponent: src/app/components/ui/badge/badge.scss
+- [x] Update app.html to include BadgeComponent
+- [x] Update app.ts to import BadgeComponent
+- [x] Update registration.ts to inject NotificationService and call showSuccess/showError
