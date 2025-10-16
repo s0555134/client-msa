@@ -1,18 +1,24 @@
 <div class="login-container">
   <mat-card class="login-card">
-    <mat-card-title>Anmeldung</mat-card-title>
+    <mat-card-title><h1>Anmeldung</h1></mat-card-title>
     <mat-card-content>
-      <form>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Benutzername</mat-label>
-          <input matInput type="text" name="username" autocomplete="username" />
+          <mat-label>E-Mail</mat-label>
+          <input matInput type="email" formControlName="email" autocomplete="email" />
+          <mat-error *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+            E-Mail ist erforderlich und muss gültig sein.
+          </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Passwort</mat-label>
-          <input matInput type="password" name="password" autocomplete="current-password" />
+          <input matInput type="password" formControlName="password" autocomplete="current-password" />
+          <mat-error *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+            Passwort ist erforderlich.
+          </mat-error>
         </mat-form-field>
-        <button mat-raised-button color="primary" class="full-width" type="submit">Einloggen</button>
-        <button mat-button color="accent" class="full-width" [routerLink]="['/registration']" 
+        <button mat-raised-button color="primary" class="full-width" type="submit" [disabled]="loginForm.invalid">Einloggen</button>
+        <button mat-button color="accent" class="full-width" [routerLink]="['/registration']"
             type="button" style="margin-top: 8px;">
             Hier registrieren
         </button>

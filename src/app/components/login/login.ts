@@ -1,17 +1,43 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
+import { NotificationService } from '../../services/notification';
 
 @Component({
   selector: 'app-login',
-  imports: [MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, RouterModule],
+  imports: [MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, RouterModule, ReactiveFormsModule],
   templateUrl: './login.html',
   styleUrls: ['./login.scss'],
   standalone: true
 })
 export class Login {
+  loginForm: FormGroup;
+  private auth = inject(Auth);
+  private router = inject(Router);
+  private notificationService = inject(NotificationService);
 
+  constructor(private fb: FormBuilder) {
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required]
+    });
+  }
+
+  async onSubmit() {
+    if (this.loginForm.valid) {
+      const { email, password } = this.loginForm.value;
+      try {
+        await signInWithEmailAndPassword(this.auth, email, password);
+        this.notificationService.showSuccess('Erfolgreich eingeloggt!');
+        this.router.navigate(['/']);
+      } catch (error: any) {
+        this.notificationService.showError('Login fehlgeschlagen: ' + error.message);
+      }
+    }
+  }
 }
