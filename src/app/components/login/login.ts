@@ -17,11 +17,11 @@ import { NotificationService } from '../../services/notification';
 })
 export class Login {
   loginForm: FormGroup;
-  private auth = inject(Auth);
-  private router = inject(Router);
-  private notificationService = inject(NotificationService);
+  private readonly auth = inject(Auth);
+  private readonly router = inject(Router);
+  private readonly notificationService = inject(NotificationService);
 
-  constructor(private fb: FormBuilder) {
+  constructor(private readonly fb: FormBuilder) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
