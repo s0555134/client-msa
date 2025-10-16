@@ -1,0 +1,16 @@
+<div class="container">
+    <h1>Troll Buddy</h1>
+    <p>Hier kannst du deinen Kumpel trollen!</p>
+    <div class="camera-section">
+        <video #videoElement autoplay muted playsinline></video>
+        <canvas #canvasElement style="display: none;"></canvas>
+    </div>
+    <div class="captured-images">
+        <h2>Gefangene Bilder</h2>
+        <div class="images-grid">
+            @for (image of capturedImages; track $index) {
+                <img [src]="image" alt="Captured image" />
+            }
+        </div>
+    </div>
+</div>

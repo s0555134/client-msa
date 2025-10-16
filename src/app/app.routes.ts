@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { Login } from './components/login/login';
 import { Content } from './components/content/content';
 import { Registration } from './components/registration/registration';
+import { TrollBuddy } from './components/troll-buddy/troll-buddy';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -18,5 +19,10 @@ export const routes: Routes = [
     {
         path: 'registration',
         component: Registration
+    },
+    {
+        path: 'troll-buddy',
+        component: TrollBuddy,
+        canActivate: [authGuard]
     }
 ];
