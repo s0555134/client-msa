@@ -17,12 +17,8 @@ export class Button {
   buttonClicked = output<void>();
 
   onClick() {
-    console.log('Button onClick called, loading:', this.loading);
     if (!this.loading) {
-      console.log('Emitting clicked event');
       this.buttonClicked.emit();
-    } else {
-      console.log('Button is loading, not emitting');
     }
   }
 }

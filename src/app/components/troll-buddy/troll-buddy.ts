@@ -1,7 +1,9 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, inject, OnInit } from '@angular/core';
 import { NotificationService } from '../../services/notification';
 import { MatButtonModule } from '@angular/material/button';
 import { Button } from '../ui/components/ui/button/button';
+import { ActivatedRoute } from '@angular/router'; // Import ActivatedRoute
+import { environment } from '../../environments/environment'; // Import environment
 
 @Component({
   selector: 'app-troll-buddy',
@@ -10,10 +12,10 @@ import { Button } from '../ui/components/ui/button/button';
   styleUrl: './troll-buddy.scss',
   standalone: true
 })
-export class TrollBuddy implements AfterViewInit, OnDestroy {
-
-
+export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
   private readonly notificationService = inject(NotificationService);
+  private readonly route = inject(ActivatedRoute); // Inject ActivatedRoute
+
   @ViewChild('videoElement', { static: true }) videoElement!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvasElement', { static: true }) canvasElement!: ElementRef<HTMLCanvasElement>;
 
@@ -21,8 +23,28 @@ export class TrollBuddy implements AfterViewInit, OnDestroy {
   capturedImages: string[] = [];
   intervalId: any;
 
+  userId: string | null = null; // To hold user ID
+  sessionId: string | null = null; // To hold session ID
+
+  link: string | null = null; // To hold the dynamic link
+
   ngAfterViewInit() {
     this.requestCameraAccess();
+  }
+
+  ngOnInit() {
+    this.route.params.subscribe(params => {
+      this.userId = params['userId']; // Retrieve user ID from route
+      this.sessionId = params['sessionId']; // Retrieve session ID from route
+      console.log('User ID:', this.userId);
+      console.log('Session ID:', this.sessionId);
+
+      // Build the dynamic link using environment.baseUrl
+      if (this.userId && this.sessionId) {
+        this.link = `${environment.baseUrl}/troll-buddy/${this.userId}/${this.sessionId}`;
+        console.log('Dynamic Link:', this.link);
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -30,9 +52,7 @@ export class TrollBuddy implements AfterViewInit, OnDestroy {
   }
 
   async requestCameraAccess() {
-    console.log('requestCameraAccess called');
     try {
-      console.log('Requesting camera access...');
       this.stream = await navigator.mediaDevices.getUserMedia({
         video: true // Any available camera
       });

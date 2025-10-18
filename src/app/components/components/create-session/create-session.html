@@ -1,0 +1,35 @@
+<div class="container">
+  <h1>Fange hier an und erstelle dein QR Code</h1>
+  <form [formGroup]="form" (ngSubmit)="createSession()">
+    <div>
+      <label for="name">Name:</label>
+      <input id="name" type="text" formControlName="name" />
+      @if (form.get('name')?.touched && form.get('name')?.invalid) {
+        <div  style="color:red;">
+            Name ist erforderlich.
+        </div>
+      }
+    </div>
+    <div>
+      <label for="jahr">Jahr:</label>
+      <input id="jahr" type="number" formControlName="jahr" />
+      @if (form.get('jahr')?.touched && form.get('jahr')?.invalid) {
+         <div  style="color:red;">
+        Jahr ist erforderlich.
+      </div>
+      }
+    </div>
+    <app-button text="Erstelle eine Session" type="submit" color="primary"></app-button>
+  </form>
+  <p>Schick diesen QR code an deinen Kumpel und rasiere ihn.</p>
+  @if (showQrCode()) {
+    <div>
+        <h2>Dein QR Code:</h2>
+        <qrcode [qrdata]="link" [width]="256" [elementType]="'img'" [errorCorrectionLevel]="'M'"></qrcode>
+    </div>
+    <div>
+        <h3>Oder benutze diesen Link:</h3>
+        <p>{{ link }}</p>
+    </div>
+  }
+</div>

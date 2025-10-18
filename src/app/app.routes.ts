@@ -4,6 +4,7 @@ import { Content } from './components/content/content';
 import { Registration } from './components/registration/registration';
 import { TrollBuddy } from './components/troll-buddy/troll-buddy';
 import { authGuard } from './guards/auth.guard';
+import { CreateSession } from './components/components/create-session/create-session';
 
 export const routes: Routes = [
     {
@@ -14,8 +15,7 @@ export const routes: Routes = [
     {
         path: 'login',
         component: Login
-    }
-    ,
+    },
     {
         path: 'registration',
         component: Registration
@@ -23,6 +23,16 @@ export const routes: Routes = [
     {
         path: 'troll-buddy',
         component: TrollBuddy,
+        canActivate: [authGuard]
+    },
+    {
+        path: 'troll-buddy/:userId/:sessionId',
+        component: TrollBuddy,
+        canActivate: [authGuard]
+    },
+    {
+        path: 'create-session',
+        component: CreateSession,
         canActivate: [authGuard]
     }
 ];
