@@ -5,6 +5,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { Auth, authState } from '@angular/fire/auth';
+import { firstValueFrom } from 'rxjs';
 import { Button } from "../ui/components/ui/button/button";
 import { NotificationService } from "../../services/notification";
 import { Router } from '@angular/router';
@@ -18,6 +20,7 @@ import { Router } from '@angular/router';
 })
 export class Registration {
   private readonly router = inject(Router);
+  private readonly auth = inject(Auth);
   registrationForm = new FormGroup({
     username: new FormControl('', Validators.required),
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -34,6 +37,7 @@ export class Registration {
         this.isLoading.set(true);
         const userCredential = await createUserWithEmailAndPassword(getAuth(), email!, password!);
         await updateProfile(userCredential.user, { displayName: username! });
+        await firstValueFrom(authState(this.auth));
         this.notificationService.showSuccess('User registered successfully');
         this.router.navigate(['/']);
       } catch (error) {
@@ -45,7 +49,6 @@ export class Registration {
   }
 
   private handleRegistrationError(error: any): void {
-    console.error('Registration error:', error);
     let errorMessage = 'Registration failed';
     if (error instanceof Error) {
       if (error.message.includes('email-already-in-use')) {

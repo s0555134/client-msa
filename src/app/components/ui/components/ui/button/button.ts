@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, output, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
@@ -6,18 +6,23 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   selector: 'app-button',
   imports: [MatProgressSpinnerModule, MatButtonModule],
   templateUrl: './button.html',
-  styleUrl: './button.scss'
+  styleUrl: './button.scss',
+  standalone: true
 })
 export class Button {
   @Input() loading = false;
   @Input() text = 'Submit';
   @Input() disabled = false;
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
-  @Output() clicked = new EventEmitter<void>();
+  buttonClicked = output<void>();
 
   onClick() {
+    console.log('Button onClick called, loading:', this.loading);
     if (!this.loading) {
-      this.clicked.emit();
+      console.log('Emitting clicked event');
+      this.buttonClicked.emit();
+    } else {
+      console.log('Button is loading, not emitting');
     }
   }
 }
