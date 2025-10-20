@@ -87,7 +87,7 @@ export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
       this.startCapturing();
     } catch (error) {
       console.error('Error accessing camera:', error);
-      this.notificationService.showError('Kamera-Zugriff verweigert oder nicht unterstützt.');
+      this.notificationService.showError('Zugriff verweigert oder nicht unterstützt.');
       this.cameraGranted.set(false);
     }
   }
