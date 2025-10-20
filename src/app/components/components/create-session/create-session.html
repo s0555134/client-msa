@@ -1,35 +1,55 @@
-<div class="container">
-  <h1>Fange hier an und erstelle dein QR Code</h1>
-  <form [formGroup]="form" (ngSubmit)="createSession()">
-    <div>
-      <label for="name">Name:</label>
-      <input id="name" type="text" formControlName="name" />
-      @if (form.get('name')?.touched && form.get('name')?.invalid) {
-        <div  style="color:red;">
-            Name ist erforderlich.
-        </div>
-      }
-    </div>
-    <div>
-      <label for="jahr">Jahr:</label>
-      <input id="jahr" type="number" formControlName="jahr" />
-      @if (form.get('jahr')?.touched && form.get('jahr')?.invalid) {
-         <div  style="color:red;">
-        Jahr ist erforderlich.
+<mat-card class="session-card">
+  <mat-card-header>
+    <mat-card-title class="card-title">Fange hier an und erstelle dein QR Code</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (!showQrCode()) {
+    <form [formGroup]="form" (ngSubmit)="createSession()" class="session-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Name</mat-label>
+        <input matInput id="name" type="text" formControlName="name" />
+        @if (form.get('name')?.touched && form.get('name')?.invalid) {
+          <mat-error>Name ist erforderlich.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Alter</mat-label>
+        <input matInput id="jahr" type="number" formControlName="jahr" />
+        @if (form.get('jahr')?.touched && form.get('jahr')?.invalid) {
+          <mat-error>Alter ist erforderlich.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Youtube Link (optional)</mat-label>
+        <input matInput id="youtubeLink" type="text" formControlName="youtubeLink" />
+        @if (form.get('youtubeLink')?.touched && form.get('youtubeLink')?.invalid) {
+          <mat-error>Ungültiger YouTube-Link.</mat-error>
+        }
+      </mat-form-field>
+
+      <div class="button-container">
+        <app-button text="Erstelle eine Session" type="submit" color="primary"></app-button>
       </div>
-      }
-    </div>
-    <app-button text="Erstelle eine Session" type="submit" color="primary"></app-button>
-  </form>
-  <p>Schick diesen QR code an deinen Kumpel und rasiere ihn.</p>
-  @if (showQrCode()) {
-    <div>
-        <h2>Dein QR Code:</h2>
-        <qrcode [qrdata]="link" [width]="256" [elementType]="'img'" [errorCorrectionLevel]="'M'"></qrcode>
-    </div>
-    <div>
-        <h3>Oder benutze diesen Link:</h3>
-        <p>{{ link }}</p>
-    </div>
-  }
-</div>
+      </form>
+    }
+
+    @if (showQrCode()) {
+      <p class="instruction-text">Schick den Link oder den QRcode und fang an zu rasieren.</p>
+      <div class="qr-section">
+        <h2 class="qr-title">Dein QR Code:</h2>
+        <div class="qr-code-container">
+          <qrcode [qrdata]="link" [width]="256" [elementType]="'img'" [errorCorrectionLevel]="'M'"></qrcode>
+        </div>
+        <div class="link-section">
+          <h3 class="link-title">Oder benutze diesen Link:</h3>
+          <span class="session-link">{{ link }}</span>
+        </div>
+         <button [cdkCopyToClipboard]="link">
+        <mat-icon>content_copy</mat-icon>
+    </button>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>

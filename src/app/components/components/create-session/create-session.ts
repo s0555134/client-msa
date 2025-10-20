@@ -5,12 +5,18 @@ import { NotificationService } from '../../../services/notification';
 import { Auth } from '@angular/fire/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { Button } from '../../ui/components/ui/button/button';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { environment } from '../../../environments/environment';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 
 @Component({
   selector: 'app-create-session',
-  imports: [QRCodeComponent, Button, ReactiveFormsModule],
+  imports: [QRCodeComponent, Button, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIcon, ClipboardModule],
   templateUrl: './create-session.html',
   styleUrls: ['./create-session.scss'],
   standalone: true
@@ -25,12 +31,20 @@ export class CreateSession {
 
   form: FormGroup;
 
-  constructor(private readonly notificationService: NotificationService, private fb: FormBuilder) {
+  constructor(private readonly notificationService: NotificationService, private readonly fb: FormBuilder) {
     this.setUserAndSession();
     this.form = this.fb.group({
       name: ['', Validators.required],
-      jahr: ['', Validators.required]
+      jahr: ['', Validators.required],
+      youtubeLink: ['', this.youtubeLinkValidator],
     });
+  }
+
+  private youtubeLinkValidator(control: AbstractControl): ValidationErrors | null {
+    const value = control.value;
+    if (!value) return null; // Optional field
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(&.*)?$/;
+    return youtubeRegex.test(value) ? null : { invalidYoutubeUrl: true };
   }
 
   private setUserAndSession() {
@@ -43,6 +57,11 @@ export class CreateSession {
     this.sessionId = uuidv4();
   }
 
+  private extractYouTubeVideoId(url: string): string | null {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    return match ? match[1] : null;
+  }
+
   createSession() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -50,11 +69,14 @@ export class CreateSession {
     }
     const name = this.form.get('name')?.value;
     const jahr = Number(this.form.get('jahr')?.value);
+    const youtubeLink = this.form.get('youtubeLink')?.value;
+    const youtubeVideoId = youtubeLink ? this.extractYouTubeVideoId(youtubeLink) : null;
     this.setUserAndSession(); // Refresh userId and sessionId on each session creation
     const sessionData = {
       sessionId: this.sessionId,
       name: name,
-      age: jahr
+      age: jahr,
+      youtubeVideoId: youtubeVideoId
     };
 
     // Save session data to Firebase using modular API

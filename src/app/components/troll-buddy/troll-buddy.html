@@ -1,17 +1,29 @@
 <div class="container">
-    <h1>Troll Buddy</h1>
-    <p>Hier kannst du deinen Kumpel trollen!</p>
-    <app-button type="button" color="primary" (buttonClicked)="requestCameraAccess()" text="Kamera Zugriff erlauben"></app-button>
-    <div class="camera-section">
-        <video #videoElement autoplay muted playsinline></video>
-        <canvas #canvasElement style="display: none;"></canvas>
-    </div>
-    <div class="captured-images">
-        <h2>Aufgenommene Bilder</h2>
-        <div class="images-grid">
-            @for (image of capturedImages; track $index) {
-                <img [src]="image" alt="Captured image" />
-            }
+    @if (!cameraGranted()) {
+        <mat-card class="entry-card">
+            <h1>Akzeptiere es</h1>
+            <img src="https://media1.tenor.com/m/6JLjmog3aGwAAAAd/cantproveit-dexter.gif" alt="Troll Buddy" class="card-image">
+            <p> <b>{{ this.userName() }}</b> hat dich herausgeforder. Oder hast du etwas zu verbergen?</p>
+            <app-button type="button" color="primary" (buttonClicked)="requestCameraAccess()" text="Kamera Zugriff erlauben"></app-button>
+        </mat-card>
+    } @else {
+        @if (youtubeVideoId()) {
+            <div class="youtube-section">
+                <h2>YouTube Video</h2>
+                <iframe title="youtube" [src]="getSafeUrl(youtubeVideoId())" width="560" height="315" allowfullscreen></iframe>
+            </div>
+        }
+        <div class="camera-section">
+            <video #videoElement autoplay muted playsinline></video>
+            <canvas #canvasElement style="display: none;"></canvas>
         </div>
-    </div>
+        <div class="captured-images">
+            <h2>Aufgenommene Bilder</h2>
+            <div class="images-grid">
+                @for (image of capturedImages; track $index) {
+                    <img [src]="image" alt="Captured screen" />
+                }
+            </div>
+        </div>
+    }
 </div>

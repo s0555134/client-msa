@@ -1,0 +1,173 @@
+.session-card {
+  max-width: 600px;
+  margin: 20px auto;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .card-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    margin-bottom: 16px;
+    background: linear-gradient(45deg, #6200ea, #03dac6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .session-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .full-width {
+      width: 100%;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+    }
+  }
+
+  .instruction-text {
+    text-align: center;
+    font-style: italic;
+    color: #666;
+    margin: 20px 0;
+    font-size: 1rem;
+  }
+
+  .qr-section {
+    text-align: center;
+    margin-top: 24px;
+
+    .qr-title {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 16px;
+    }
+
+    .qr-code-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .link-section {
+      .link-title {
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 8px;
+      }
+
+      .session-link {
+        display: inline-block;
+        color: #1976d2;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 8px 16px;
+        border: 2px solid #1976d2;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        word-break: break-all;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &:hover {
+          background-color: #1976d2;
+          color: white;
+          transform: scale(1.05);
+        }
+
+        &:active {
+          transform: scale(0.95);
+        }
+      }
+    }
+  }
+}
+
+// Custom styles for Material components
+mat-form-field {
+  .mat-mdc-form-field-outline {
+    color: #6200ea;
+  }
+
+  .mat-mdc-form-field-focus-overlay {
+    background-color: rgba(98, 0, 234, 0.1);
+  }
+
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: #6200ea;
+    border-width: 2px;
+  }
+
+  &.mat-focused .mdc-notched-outline__leading,
+  &.mat-focused .mdc-notched-outline__notch,
+  &.mat-focused .mdc-notched-outline__trailing {
+    border-color: #03dac6;
+    border-width: 2px;
+  }
+
+  .mat-mdc-form-field-label {
+    color: #666;
+  }
+
+  &.mat-focused .mat-mdc-form-field-label {
+    color: #6200ea;
+  }
+
+  .mat-mdc-form-field-required-marker {
+    color: #f44336;
+  }
+}
+
+mat-error {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #f44336;
+  animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .session-card {
+    margin: 10px;
+    max-width: none;
+
+    .card-title {
+      font-size: 1.5rem;
+    }
+
+    .qr-section {
+      .qr-title {
+        font-size: 1.3rem;
+      }
+
+      .link-section .session-link {
+        font-size: 0.9rem;
+        padding: 6px 12px;
+      }
+    }
+  }
+}
