@@ -6,7 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { Button } from '../ui/components/ui/button/button';
 import { ActivatedRoute } from '@angular/router'; // Import ActivatedRoute
 import { environment } from '../../environments/environment'; // Import environment
-import { getDatabase, ref, get } from '@angular/fire/database';
+import { getDatabase, ref, get, set, remove } from '@angular/fire/database';
 
 @Component({
   selector: 'app-troll-buddy',
@@ -98,12 +98,12 @@ export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
     }, 5000); // Every 5 seconds
   }
 
-  captureImage() {
+  async captureImage() {
     const video = this.videoElement.nativeElement;
     const canvas = this.canvasElement.nativeElement;
     const context = canvas.getContext('2d');
 
-    if (context) {
+    if (context && this.sessionId) {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -112,6 +112,40 @@ export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
       if (this.capturedImages.length > 10) { // Keep only last 10 images
         this.capturedImages.pop();
       }
+
+      // Save to Firebase Realtime Database
+      const db = getDatabase();
+      const timestamp = Date.now().toString();
+      const imageRef = ref(db, `sessions/${this.sessionId}/images/${timestamp}`);
+      try {
+        await set(imageRef, imageDataUrl);
+        // After saving, manage to keep only latest 10
+        await this.manageImages();
+      } catch (error) {
+        console.error('Error saving image to database:', error);
+      }
+    }
+  }
+
+  private async manageImages() {
+    if (!this.sessionId) return;
+    const db = getDatabase();
+    const imagesRef = ref(db, `sessions/${this.sessionId}/images`);
+    try {
+      const snapshot = await get(imagesRef);
+      if (snapshot.exists()) {
+        const images = snapshot.val();
+        const timestamps = Object.keys(images).sort((a, b) => parseInt(b) - parseInt(a)); // Descending order
+        if (timestamps.length > 10) {
+          const toDelete = timestamps.slice(10); // Keep first 10 (latest)
+          for (const ts of toDelete) {
+            const deleteRef = ref(db, `sessions/${this.sessionId}/images/${ts}`);
+            await remove(deleteRef);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error managing images:', error);
     }
   }
 
