@@ -1,7 +1,6 @@
-- [x] Create NotificationService in src/app/services/notification.ts
-- [x] Create BadgeComponent: src/app/components/ui/badge/badge.ts
-- [x] Create BadgeComponent: src/app/components/ui/badge/badge.html
-- [x] Create BadgeComponent: src/app/components/ui/badge/badge.scss
-- [x] Update app.html to include BadgeComponent
-- [x] Update app.ts to import BadgeComponent
-- [x] Update registration.ts to inject NotificationService and call showSuccess/showError
+- [x] Add cameraGranted signal to troll-buddy.ts
+- [x] Modify requestCameraAccess in troll-buddy.ts to set cameraGranted and remove mock call
+- [x] Remove startMockCapturing and captureMockImage methods from troll-buddy.ts
+- [x] Update troll-buddy.html to conditionally render content based on cameraGranted
+- [x] Add MatCardModule import to troll-buddy.ts
+- [x] Add mat-card with GIF from content.html to troll-buddy.html when camera granted

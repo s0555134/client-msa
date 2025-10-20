@@ -13,17 +13,5 @@
                 <iframe title="youtube" [src]="getSafeUrl(youtubeVideoId())" width="560" height="315" allowfullscreen></iframe>
             </div>
         }
-        <div class="camera-section">
-            <video #videoElement autoplay muted playsinline></video>
-            <canvas #canvasElement style="display: none;"></canvas>
-        </div>
-        <div class="captured-images">
-            <h2>Aufgenommene Bilder</h2>
-            <div class="images-grid">
-                @for (image of capturedImages; track $index) {
-                    <img [src]="image" alt="Captured screen" />
-                }
-            </div>
-        </div>
     }
 </div>
