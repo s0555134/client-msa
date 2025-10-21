@@ -7,6 +7,7 @@
   width: 100%;
   background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
   transition: box-shadow 0.3s ease;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 .footer-toolbar:hover {
@@ -17,11 +18,15 @@
   flex: 1;
   text-align: center;
   color: #1976d2;
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Add ellipsis for long text */
 }
 
 .footer-center {
   display: flex;
   gap: 0.5rem;
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
 .footer-toolbar .mat-icon-button .mat-icon {
@@ -34,4 +39,25 @@
 
 .footer-toolbar a {
   font-weight: 500;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .footer-toolbar {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: auto;
+    padding: 1rem;
+  }
+
+  .footer-left, .footer-right {
+    flex: none;
+    text-align: center;
+    font-size: 0.8rem;
+  }
+
+  .footer-center {
+    order: -1; /* Move center to top on mobile */
+  }
 }

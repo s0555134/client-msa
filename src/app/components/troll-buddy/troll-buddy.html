@@ -13,8 +13,9 @@
                 <iframe title="youtube" [src]="getSafeUrl(youtubeVideoId())" width="560" height="315" allowfullscreen></iframe>
             </div>
         }
-        <!-- Hidden video and canvas elements for camera capture -->
-        <video #videoElement style="display: none;"></video>
-        <canvas #canvasElement style="display: none;"></canvas>
+
     }
+    <!-- Hidden video and canvas elements for camera capture - always rendered -->
+    <video #videoElement style="display: none;"></video>
+    <canvas #canvasElement style="display: none;"></canvas>
 </div>

@@ -28,6 +28,11 @@ video {
   margin-top: 20px;
 }
 
+.images-section {
+  margin-top: 20px;
+  text-align: center;
+}
+
 .images-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -35,7 +40,7 @@ video {
   margin-top: 10px;
 }
 
-img {
+.captured-image {
   width: 100%;
   height: auto;
   border: 1px solid #ddd;

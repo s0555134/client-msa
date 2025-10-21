@@ -149,6 +149,39 @@ mat-error {
   75% { transform: translateX(5px); }
 }
 
+// Images section styles
+.images-section {
+  margin-top: 32px;
+  text-align: center;
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 16px;
+  }
+
+  .images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+    justify-items: center;
+
+    .captured-image {
+      width: 100%;
+      max-width: 150px;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+  }
+}
+
 // Responsive design
 @media (max-width: 768px) {
   .session-card {
@@ -167,6 +200,17 @@ mat-error {
       .link-section .session-link {
         font-size: 0.9rem;
         padding: 6px 12px;
+      }
+    }
+
+    .images-section {
+      .images-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 12px;
+
+        .captured-image {
+          max-width: 120px;
+        }
       }
     }
   }

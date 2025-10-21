@@ -3,7 +3,7 @@
     <mat-card-title class="card-title">Fange hier an und erstelle dein QR Code</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    @if (!showQrCode()) {
+    @if (!showQrCode() && capturedImages().length === 0) {
     <form [formGroup]="form" (ngSubmit)="createSession()" class="session-form">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Name</mat-label>
@@ -30,12 +30,12 @@
       </mat-form-field>
 
       <div class="button-container">
-        <app-button text="Erstelle eine Session" type="submit" color="primary"></app-button>
+        <app-button text="Erstelle deine Session" type="submit" color="primary"></app-button>
       </div>
       </form>
     }
 
-    @if (showQrCode()) {
+    @if (showQrCode() || capturedImages().length > 0) {
       <p class="instruction-text">Schick den Link oder den QRcode und fang an zu rasieren.</p>
       <div class="qr-section">
         <h2 class="qr-title">Dein QR Code:</h2>
@@ -43,12 +43,27 @@
           <qrcode [qrdata]="link" [width]="256" [elementType]="'img'" [errorCorrectionLevel]="'M'"></qrcode>
         </div>
         <div class="link-section">
-          <h3 class="link-title">Oder benutze diesen Link:</h3>
+          <h3 class="link-title">Oder teile diesen Link:</h3>
           <span class="session-link">{{ link }}</span>
         </div>
          <button [cdkCopyToClipboard]="link">
         <mat-icon>content_copy</mat-icon>
     </button>
+      </div>
+
+      @if (capturedImages().length > 0) {
+        <div class="images-section">
+          <h2>Aufgenomme Bilder</h2>
+          <div class="images-grid">
+            @for (image of capturedImages(); track $index) {
+              <img [src]="image" alt="Captured image" class="captured-image">
+            }
+          </div>
+        </div>
+      }
+
+      <div class="button-container">
+        <app-button text="Neue Session starten" (buttonClicked)="startNewSession()" color="secondary"></app-button>
       </div>
     }
   </mat-card-content>
