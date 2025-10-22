@@ -225,6 +225,6 @@ export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
     }
     // Check if it's a YouTube Shorts video ID (assuming Shorts have different handling)
     // For now, treat all as regular videos, but add parameters for autoplay and mute
-    return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&enablejsapi=1&origin=${window.location.origin}`);
+    return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&origin=${window.location.origin}`);
   }
 }

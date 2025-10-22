@@ -1,0 +1,9 @@
+@if (capturedImages.length > 0) {
+  <div class="images-section">
+    <div class="images-grid">
+      @for (image of capturedImages; track $index) {
+        <img [src]="image" alt="Captured screens" class="captured-image">
+      }
+    </div>
+  </div>
+}

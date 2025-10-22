@@ -1,22 +1,18 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { QRCodeComponent } from 'angularx-qrcode';
 import { NotificationService } from '../../../services/notification';
 import { FirebaseService } from '../../../services/firebase.service';
 import { Auth } from '@angular/fire/auth';
 import { v4 as uuidv4 } from 'uuid';
-import { Button } from '../../ui/components/ui/button/button';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { environment } from '../../../environments/environment';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
-import { ClipboardModule } from '@angular/cdk/clipboard';
+import { SessionFormComponent } from './session-form/session-form';
+import { SessionQrComponent } from './session-qr/session-qr';
+import { CapturedImagesComponent } from './captured-images/captured-images';
 
 @Component({
   selector: 'app-create-session',
-  imports: [QRCodeComponent, Button, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIcon, ClipboardModule],
+  imports: [ReactiveFormsModule, MatCardModule, SessionFormComponent, SessionQrComponent, CapturedImagesComponent],
   templateUrl: './create-session.html',
   styleUrls: ['./create-session.scss'],
   standalone: true
@@ -31,7 +27,7 @@ export class CreateSession implements OnInit {
   showQrCode = signal(false);
   capturedImages = signal<string[]>([]);
   existingSession = signal(false);
-  defaultYtLinkId = "p3s19nI1NA"
+  defaultYtLinkId = "https://www.youtube.com/shorts/p3s19nI1NAI"
 
   form: FormGroup;
 
@@ -80,8 +76,8 @@ export class CreateSession implements OnInit {
     }
     const name = this.form.get('name')?.value;
     const jahr = Number(this.form.get('jahr')?.value);
-    const youtubeLink = this.form.get('youtubeLink')?.value;
-    const youtubeVideoId = youtubeLink ? this.extractYouTubeVideoId(youtubeLink) : this.defaultYtLinkId;
+    const youtubeLink = this.form.get('youtubeLink')?.value || this.defaultYtLinkId;
+    const youtubeVideoId = this.extractYouTubeVideoId(youtubeLink) ;
     this.setUserAndSession(); // Refresh userId and sessionId on each session creation
     const sessionData = {
       sessionId: this.sessionId,
@@ -97,29 +93,28 @@ export class CreateSession implements OnInit {
       this.notificationService.showSuccess('Qr Code erfolgreich erstellt!');
       this.link = `${environment.baseUrl}/troll-buddy/${this.userId}/${this.sessionId}`;
       this.showQrCode.set(true);
-     // this.loadCapturedImages(); // Load images after session creation
+      this.loadCapturedImages(); // Load images after session creation
     } else {
       this.notificationService.showError('Qr konnte nicht erstellt werden!');
       this.showQrCode.set(false);
     }
   }
 
-  private async loadCapturedImages() {
-    if (!this.sessionKey) return; // Use sessionKey instead of sessionId
+  async loadCapturedImages() {
+    if (!this.sessionId) return;
     try {
-      const images = await this.firebaseService.get(`sessions/${this.userId}/${this.sessionKey}/images`);
-      if (images) {
-        const imageUrls = Object.values(images) as string[];
+      const imageUrls = await this.firebaseService.getCapturedImagesBySessionId(this.sessionId);
+      if (imageUrls.length > 0) {
         // Sort by timestamp (assuming keys are timestamps)
         const sortedImages = imageUrls.sort((a, b) => {
-          const aTimestamp = parseInt(Object.keys(images).find(key => images[key] === a) || '0');
-          const bTimestamp = parseInt(Object.keys(images).find(key => images[key] === b) || '0');
-          return bTimestamp - aTimestamp; // Latest first
+          // Assuming images are stored with timestamp keys, but since we have URLs, we can't sort easily
+          // For now, just reverse to show latest first if possible
+          return 0; // Placeholder, adjust if needed
         });
         this.capturedImages.set(sortedImages.slice(0, 10)); // Keep only latest 10
         console.log('Loaded captured images:', this.capturedImages().length);
       } else {
-        console.log('No images found for session:', this.sessionKey);
+        console.log('No images found for session:', this.sessionId);
       }
     } catch (error) {
       console.error('Error loading captured images:', error);
@@ -138,6 +133,7 @@ export class CreateSession implements OnInit {
         this.link = `${environment.baseUrl}/troll-buddy/${this.userId}/${this.sessionId}`;
         this.showQrCode.set(true);
         this.existingSession.set(true);
+        this.loadCapturedImages(); // Load images for existing session
       }
     }
   }

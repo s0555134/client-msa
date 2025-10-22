@@ -13,66 +13,23 @@
       @if (existingSession()) {
         <p class="existing-session-message">Du hast bereits eine Session erstellt. Hier ist dein QR Code:</p>
       } @else {
-        <form [formGroup]="form" (ngSubmit)="createSession()" class="session-form">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Name</mat-label>
-            <input matInput id="name" type="text" formControlName="name" />
-            @if (form.get('name')?.touched && form.get('name')?.invalid) {
-              <mat-error>Name ist erforderlich.</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Alter</mat-label>
-            <input matInput id="jahr" type="number" formControlName="jahr" />
-            @if (form.get('jahr')?.touched && form.get('jahr')?.invalid) {
-              <mat-error>Alter ist erforderlich.</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Youtube Link (optional)</mat-label>
-            <input matInput id="youtubeLink" type="text" formControlName="youtubeLink" />
-            @if (form.get('youtubeLink')?.touched && form.get('youtubeLink')?.invalid) {
-              <mat-error>Ungültiger YouTube-Link.</mat-error>
-            }
-          </mat-form-field>
-
-          <div class="button-container">
-            <app-button text="Erstelle deine Session" type="submit" color="primary"></app-button>
-          </div>
-        </form>
+        <app-session-form [form]="form" [existingSession]="existingSession()" (onSubmit)="createSession()"></app-session-form>
       }
     } @else {
-      <p class="instruction-text">Schick den Link oder den QRcode und fang an zu rasieren.</p>
-      <div class="qr-section">
-        <h2 class="qr-title">Dein QR Code:</h2>
-        <div class="qr-code-container">
-          <qrcode [qrdata]="link" [width]="256" [elementType]="'img'" [errorCorrectionLevel]="'M'"></qrcode>
-        </div>
-        <div class="link-section">
-          <h3 class="link-title">Oder teile diesen Link:</h3>
-          <span class="session-link">{{ link }}</span>
-        </div>
-         <button [cdkCopyToClipboard]="link">
-        <mat-icon>content_copy</mat-icon>
-    </button>
-      </div>
-
-      @if (capturedImages().length > 0) {
-        <div class="images-section">
-          <h2>Aufgenomme Bilder</h2>
-          <div class="images-grid">
-            @for (image of capturedImages(); track $index) {
-              <img [src]="image" alt="Captured image" class="captured-image">
-            }
-          </div>
-        </div>
-      }
-
-      <div class="button-container center">
-        <app-button text="Neue Session starten" (buttonClicked)="startNewSession()" color="secondary"></app-button>
-      </div>
+      <app-session-qr [link]="link" [showQrCode]="showQrCode()" (startNewSession)="startNewSession()"></app-session-qr>
     }
   </mat-card-content>
 </mat-card>
+@if (capturedImages().length) {
+<div class="container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Aufgenomme Bilder</mat-card-title>
+      <button mat-button class="reload-button" (click)="loadCapturedImages()">Bilder neu laden</button>
+    </mat-card-header>
+    <mat-card-content>
+      <app-captured-images [capturedImages]="capturedImages()"></app-captured-images>
+    </mat-card-content>
+  </mat-card>
+</div>
+}

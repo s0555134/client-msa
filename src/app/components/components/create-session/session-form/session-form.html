@@ -1,0 +1,31 @@
+@if (!existingSession) {
+  <form [formGroup]="form" (ngSubmit)="submitForm()" class="session-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Name</mat-label>
+      <input matInput id="name" type="text" formControlName="name" />
+      @if (form.get('name')?.touched && form.get('name')?.invalid) {
+        <mat-error>Name ist erforderlich.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Alter</mat-label>
+      <input matInput id="jahr" type="number" formControlName="jahr" />
+      @if (form.get('jahr')?.touched && form.get('jahr')?.invalid) {
+        <mat-error>Alter ist erforderlich.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Youtube Link (optional)</mat-label>
+      <input matInput id="youtubeLink" type="text" formControlName="youtubeLink" />
+      @if (form.get('youtubeLink')?.touched && form.get('youtubeLink')?.invalid) {
+        <mat-error>Ungültiger YouTube-Link.</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="button-container">
+      <app-button text="Erstelle deine Session" type="submit" color="primary"></app-button>
+    </div>
+  </form>
+}

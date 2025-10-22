@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { getDatabase, ref, push, get, remove } from '@angular/fire/database';
+import { getDatabase, ref, push, get, remove, set } from '@angular/fire/database';
 
 @Injectable({
   providedIn: 'root'
@@ -52,6 +52,19 @@ export class FirebaseService {
     } catch (error) {
       console.error('Error getting session key by user ID:', error);
       return null;
+    }
+  }
+
+  async getCapturedImagesBySessionId(sessionId: string): Promise<string[]> {
+    try {
+      const images = await this.get(`sessions/${sessionId}/images`);
+      if (images) {
+        return Object.values(images) as string[];
+      }
+      return [];
+    } catch (error) {
+      console.error('Error getting captured images by session ID:', error);
+      return [];
     }
   }
 }

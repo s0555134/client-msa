@@ -9,7 +9,7 @@
     } @else {
         @if (youtubeVideoId()) {
             <div class="youtube-section">
-                <h2>YouTube Video</h2>
+                <h2>{{userName()}} hat dir ein video geschickt.</h2>
                 <iframe title="youtube" [src]="getSafeUrl(youtubeVideoId())" width="560" height="315" allowfullscreen></iframe>
             </div>
         }

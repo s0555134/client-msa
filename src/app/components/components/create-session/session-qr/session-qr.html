@@ -1,0 +1,19 @@
+@if (showQrCode) {
+  <p class="instruction-text">Schick den Link oder den QRcode und fang an zu rasieren.</p>
+  <div class="qr-section">
+    <h2 class="qr-title">Dein QR Code:</h2>
+    <div class="qr-code-container">
+      <qrcode [qrdata]="link" [width]="256" [elementType]="'img'" [errorCorrectionLevel]="'M'"></qrcode>
+    </div>
+    <div class="link-section">
+      <h3 class="link-title">Oder teile diesen Link:</h3>
+      <span class="session-link">{{ link }}</span>
+    </div>
+    <button [cdkCopyToClipboard]="link">
+      <mat-icon>content_copy</mat-icon>
+    </button>
+  </div>
+  <div class="button-container center">
+    <app-button text="Neue Session starten" (buttonClicked)="onStartNewSession()" color="secondary"></app-button>
+  </div>
+}
