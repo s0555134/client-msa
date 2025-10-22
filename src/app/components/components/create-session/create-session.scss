@@ -10,12 +10,11 @@
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
   }
 
-  .card-title {
+  .card-title.center {
+    text-align: center;
     font-size: 1.8rem;
     font-weight: 600;
     color: #333;
-    text-align: center;
-    margin-bottom: 16px;
     background: linear-gradient(45deg, #6200ea, #03dac6);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -36,6 +35,12 @@
       justify-content: center;
       margin-top: 16px;
     }
+  }
+
+  .button-container.center {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
   }
 
   .instruction-text {

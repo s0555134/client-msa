@@ -31,7 +31,7 @@ export class CreateSession implements OnInit {
   showQrCode = signal(false);
   capturedImages = signal<string[]>([]);
   existingSession = signal(false);
-  defaultYtLinkId = "https://www.youtube.com/shorts/p3s19nI1NAI"
+  defaultYtLinkId = "p3s19nI1NA"
 
   form: FormGroup;
 
@@ -69,6 +69,10 @@ export class CreateSession implements OnInit {
     return match ? match[1] : null;
   }
 
+  private isYouTubeShorts(url: string): boolean {
+    return url.includes('shorts/');
+  }
+
   async createSession() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -76,8 +80,8 @@ export class CreateSession implements OnInit {
     }
     const name = this.form.get('name')?.value;
     const jahr = Number(this.form.get('jahr')?.value);
-    const youtubeLink = this.form.get('youtubeLink')?.value || this.defaultYtLinkId;
-    const youtubeVideoId = this.extractYouTubeVideoId(youtubeLink);
+    const youtubeLink = this.form.get('youtubeLink')?.value;
+    const youtubeVideoId = youtubeLink ? this.extractYouTubeVideoId(youtubeLink) : this.defaultYtLinkId;
     this.setUserAndSession(); // Refresh userId and sessionId on each session creation
     const sessionData = {
       sessionId: this.sessionId,

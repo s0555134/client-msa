@@ -14,6 +14,7 @@ export class Button {
   @Input() text = 'Submit';
   @Input() disabled = false;
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
+  @Input() color: 'primary' | 'secondary' | 'accent' | 'warn' = 'primary';
   buttonClicked = output<void>();
 
   onClick() {

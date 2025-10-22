@@ -1,9 +1,15 @@
 <mat-card class="session-card">
   <mat-card-header>
-    <mat-card-title class="card-title">Fange hier an und erstelle dein QR Code</mat-card-title>
+    <mat-card-title class="card-title center">
+      @if (existingSession()) {
+          Deine erstellte Session
+      } @else {
+          Erstelle deine Session
+      }
+    </mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    @if (!showQrCode() && capturedImages().length === 0) {
+    @if (!showQrCode()) {
       @if (existingSession()) {
         <p class="existing-session-message">Du hast bereits eine Session erstellt. Hier ist dein QR Code:</p>
       } @else {
@@ -64,7 +70,7 @@
         </div>
       }
 
-      <div class="button-container">
+      <div class="button-container center">
         <app-button text="Neue Session starten" (buttonClicked)="startNewSession()" color="secondary"></app-button>
       </div>
     }

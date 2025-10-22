@@ -3,7 +3,7 @@
         [disabled]="disabled || loading"
         (click)="onClick()"
         class="loading-button"
-        color="primary">
+        [color]="color">
   <div class="button-content">
     @if (loading) {
          <div class="loading-wrapper">

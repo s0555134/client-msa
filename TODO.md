@@ -1,6 +1,2 @@
-- [x] Add cameraGranted signal to troll-buddy.ts
-- [x] Modify requestCameraAccess in troll-buddy.ts to set cameraGranted and remove mock call
-- [x] Remove startMockCapturing and captureMockImage methods from troll-buddy.ts
-- [x] Update troll-buddy.html to conditionally render content based on cameraGranted
-- [x] Add MatCardModule import to troll-buddy.ts
-- [x] Add mat-card with GIF from content.html to troll-buddy.html when camera granted
+- [x] Fix camera access issue in troll-buddy component by ensuring view updates with ChangeDetectorRef
+- [x] Fix navigation after registration by removing unnecessary authState wait
