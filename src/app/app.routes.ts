@@ -27,7 +27,6 @@ export const routes: Routes = [
     {
         path: 'troll-buddy/:userId/:sessionId',
         component: TrollBuddy,
-        canActivate: [authGuard]
     },
     {
         path: 'create-session',

@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { QRCodeComponent } from 'angularx-qrcode';
-import { getDatabase, ref, push, get } from '@angular/fire/database';
 import { NotificationService } from '../../../services/notification';
+import { FirebaseService } from '../../../services/firebase.service';
 import { Auth } from '@angular/fire/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { Button } from '../../ui/components/ui/button/button';
@@ -23,13 +23,15 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
 })
 export class CreateSession implements OnInit {
   private readonly auth = inject(Auth);
-  private readonly db = getDatabase();
+  private readonly firebaseService = inject(FirebaseService);
   userId: string = '';
   sessionId: string = '';
-  sessionKey: string = ''; // Firebase key for the session
+  sessionKey: string | null = null; // Firebase key for the session
   link: string = '';
   showQrCode = signal(false);
   capturedImages = signal<string[]>([]);
+  existingSession = signal(false);
+  defaultYtLinkId = "https://www.youtube.com/shorts/p3s19nI1NAI"
 
   form: FormGroup;
 
@@ -48,7 +50,7 @@ export class CreateSession implements OnInit {
   private youtubeLinkValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null; // Optional field
-    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(&.*)?$/;
+    const youtubeRegex = /^(https?:\/\/)?(www\.|m\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})(&.*)?$/;
     return youtubeRegex.test(value) ? null : { invalidYoutubeUrl: true };
   }
 
@@ -63,19 +65,19 @@ export class CreateSession implements OnInit {
   }
 
   private extractYouTubeVideoId(url: string): string | null {
-    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    const match = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
     return match ? match[1] : null;
   }
 
-  createSession() {
+  async createSession() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
     const name = this.form.get('name')?.value;
     const jahr = Number(this.form.get('jahr')?.value);
-    const youtubeLink = this.form.get('youtubeLink')?.value;
-    const youtubeVideoId = youtubeLink ? this.extractYouTubeVideoId(youtubeLink) : null;
+    const youtubeLink = this.form.get('youtubeLink')?.value || this.defaultYtLinkId;
+    const youtubeVideoId = this.extractYouTubeVideoId(youtubeLink);
     this.setUserAndSession(); // Refresh userId and sessionId on each session creation
     const sessionData = {
       sessionId: this.sessionId,
@@ -85,30 +87,24 @@ export class CreateSession implements OnInit {
       youtubeVideoId: youtubeVideoId
     };
 
-    // Save session data to Firebase using modular API under userId
-    const sessionsRef = ref(this.db, `sessions/${this.userId}`);
-    push(sessionsRef, sessionData).then((result) => {
-      this.sessionKey = result.key!; // Store the Firebase key
+    this.sessionKey = await this.firebaseService.push('sessions', sessionData);
+    if (this.sessionKey) {
       console.log('Session created successfully:', sessionData);
       this.notificationService.showSuccess('Qr Code erfolgreich erstellt!');
       this.link = `${environment.baseUrl}/troll-buddy/${this.userId}/${this.sessionId}`;
       this.showQrCode.set(true);
-      this.loadCapturedImages(); // Load images after session creation
-    }).catch((error: any) => {
-      console.error('Error creating session:', error);
-      this.notificationService.showSuccess('Qr konnte nicht erstellt werden!');
+     // this.loadCapturedImages(); // Load images after session creation
+    } else {
+      this.notificationService.showError('Qr konnte nicht erstellt werden!');
       this.showQrCode.set(false);
-    });
+    }
   }
 
   private async loadCapturedImages() {
     if (!this.sessionKey) return; // Use sessionKey instead of sessionId
-    const db = getDatabase();
-    const imagesRef = ref(db, `sessions/${this.userId}/${this.sessionKey}/images`);
     try {
-      const snapshot = await get(imagesRef);
-      if (snapshot.exists()) {
-        const images = snapshot.val();
+      const images = await this.firebaseService.get(`sessions/${this.userId}/${this.sessionKey}/images`);
+      if (images) {
         const imageUrls = Object.values(images) as string[];
         // Sort by timestamp (assuming keys are timestamps)
         const sortedImages = imageUrls.sort((a, b) => {
@@ -130,36 +126,37 @@ export class CreateSession implements OnInit {
     const user = this.auth.currentUser;
     if (!user) return;
 
-    const db = getDatabase();
-    const sessionsRef = ref(db, `sessions/`);
-    try {
-      const snapshot = await get(sessionsRef);
-      if (snapshot.exists()) {
-        const sessions = snapshot.val();
-        // Get the latest session (assuming the last key is the latest)
-       for (const key in sessions) {
-         if (sessions[key] === user.uid) {
-            // Found existing session for this user
-           this.sessionKey = key;
-            this.sessionId = sessions[key].sessionId;
-            this.link = `${environment.baseUrl}/troll-buddy/${this.userId}/${this.sessionId}`;
-            this.showQrCode.set(true);
-            this.loadCapturedImages();
-            break;
-         }
+    const sessionKey = await this.firebaseService.getSessionKeyByUserId(user.uid);
+    if (sessionKey) {
+      const sessions = await this.firebaseService.get('sessions');
+      if (sessions) {
+        this.sessionId = sessions[sessionKey].sessionId;
+        this.link = `${environment.baseUrl}/troll-buddy/${this.userId}/${this.sessionId}`;
+        this.showQrCode.set(true);
+        this.existingSession.set(true);
       }
-    }
-    } catch (error) {
-      console.error('Error checking existing session:', error);
     }
   }
 
-  startNewSession() {
-    this.showQrCode.set(false);
+  async startNewSession() {
+    const user = this.auth.currentUser;
+    if (user) {
+      const sessionKey = await this.firebaseService.getSessionKeyByUserId(user.uid);
+      if (sessionKey) {
+        await this.firebaseService.remove(`sessions/${sessionKey}`);
+        console.log('Session deleted successfully');
+      }
+    }
+    this.resetSessionData();
+  }
+
+  resetSessionData() {
+     this.showQrCode.set(false);
     this.capturedImages.set([]);
-    this.sessionKey = '';
+    this.sessionKey = null;
     this.sessionId = '';
     this.link = '';
+    this.existingSession.set(false);
     this.form.reset();
     this.setUserAndSession();
   }

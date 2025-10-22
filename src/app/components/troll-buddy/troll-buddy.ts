@@ -106,23 +106,18 @@ export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
   }
 
   async requestCameraAccess() {
-    alert('Requesting camera access...');
     if (this.stream) {
       this.cameraGranted.set(true);
-      alert('Camera already granted.');
       return;
     }
     try {
-      alert('Getting user media...');
       this.stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user' } // Front camera for mobile
       });
-      alert('Media stream obtained.');
       if (this.videoElement) {
         this.videoElement.nativeElement.srcObject = this.stream;
         this.videoElement.nativeElement.addEventListener('loadedmetadata', () => {
           console.log('Video loaded, dimensions:', this.videoElement.nativeElement.videoWidth, this.videoElement.nativeElement.videoHeight);
-          alert('Video loaded, dimensions: ' + this.videoElement.nativeElement.videoWidth + 'x' + this.videoElement.nativeElement.videoHeight);
           this.cameraGranted.set(true);
           this.startCapturing();
         });
@@ -150,9 +145,7 @@ export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
   }
 
   async captureImage() {
-    alert('Attempting to capture image...');
     if (!this.videoElement || !this.canvasElement) {
-      alert('Video or canvas element not found');
       return;
     }
     const video = this.videoElement.nativeElement;
@@ -227,6 +220,6 @@ export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
   }
 
   getSafeUrl(videoId: string | null): SafeResourceUrl {
-   return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`);
-   }
+    return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${videoId}?autoplay=1`);
+  }
 }
