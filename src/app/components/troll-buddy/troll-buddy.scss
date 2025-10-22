@@ -75,6 +75,11 @@ iframe {
   text-align: center;
   color: white;
 }
+.center {
+display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
 .entry-card:hover {
   transform: translateY(-10px);

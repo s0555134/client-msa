@@ -20,16 +20,16 @@
     }
   </mat-card-content>
 </mat-card>
-@if (capturedImages().length) {
 <div class="container">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Aufgenomme Bilder</mat-card-title>
-      <button mat-button class="reload-button" (click)="loadCapturedImages()">Bilder neu laden</button>
-    </mat-card-header>
-    <mat-card-content>
-      <app-captured-images [capturedImages]="capturedImages()"></app-captured-images>
-    </mat-card-content>
-  </mat-card>
+  <button mat-button class="reload-button" (click)="loadCapturedImages()">Bilder neu laden</button>
+  @if (capturedImages().length) {
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Aufgenomme Bilder</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <app-captured-images [capturedImages]="capturedImages()"></app-captured-images>
+      </mat-card-content>
+    </mat-card>
+  }
 </div>
-}
