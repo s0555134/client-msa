@@ -25,7 +25,7 @@ export const routes: Routes = [
         component: TrollBuddy,
     },
     {
-        path: 'troll-buddy/:userId/:sessionId',
+        path: 'troll-buddy/:sessionId',
         component: TrollBuddy,
     },
     {

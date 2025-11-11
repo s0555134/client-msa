@@ -7,6 +7,7 @@ import { Button } from '../ui/components/ui/button/button';
 import { ActivatedRoute, Router } from '@angular/router'; // Import ActivatedRoute
 import { environment } from '../../environments/environment'; // Import environment
 import { getDatabase, ref, get, set, remove } from '@angular/fire/database';
+import { Auth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-troll-buddy',
@@ -21,6 +22,7 @@ export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
   private readonly route = inject(ActivatedRoute); // Inject ActivatedRoute
   private readonly sanitizer = inject(DomSanitizer);
     private readonly router = inject(Router);
+  private readonly auth = inject(Auth);
 
   @ViewChild('videoElement', { static: true }) videoElement!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvasElement', { static: true }) canvasElement!: ElementRef<HTMLCanvasElement>;
@@ -45,19 +47,20 @@ export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
   }
 
   ngOnInit() {
+    // Set default YouTube video ID
+    this.youtubeVideoId.set('p3s19nI1NAI');
     this.route.params.subscribe(params => {
-      this.userId = params['userId']; // Retrieve user ID from route
       this.sessionId = params['sessionId']; // Retrieve session ID from route
       // Build the dynamic link using environment.baseUrl
-      if (this.userId && this.sessionId) {
-        this.link = `${environment.baseUrl}/troll-buddy/${this.userId}/${this.sessionId}`;
+      if (this.sessionId) {
+        this.link = `${environment.baseUrl}/troll-buddy/${this.sessionId}`;
         this.fetchSessionData();
       }
     });
   }
 
   private async fetchSessionData() {
-    if (!this.userId || !this.sessionId) return;
+    if (!this.sessionId) return;
     const db = getDatabase();
     const sessionsRef = ref(db, 'sessions');
     try {
@@ -69,8 +72,15 @@ export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
           if (sessions[key].sessionId === this.sessionId) {
             this.youtubeVideoId.set(sessions[key].youtubeVideoId || null);
             this.userName.set(sessions[key].name || '');
-            // Load existing images from Firebase
-            await this.loadExistingImages();
+            this.userId = sessions[key].userId || null; // Store the session creator's userId
+            // Check if current user is the creator
+            const currentUser = this.auth.currentUser;
+            if (currentUser && currentUser.uid === this.userId) {
+              // Load existing images from Firebase only if user is the creator
+              await this.loadExistingImages();
+            } else {
+              console.log('User is not the session creator, images not loaded.');
+            }
             break;
           }
         }
@@ -147,6 +157,23 @@ export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
     }, 5000); // Every 5 seconds
   }
 
+  private isImageBlack(canvas: HTMLCanvasElement): boolean {
+    const context = canvas.getContext('2d');
+    if (!context) return false;
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    // Check if all pixels are black (r=g=b=0) or very dark (average < 10)
+    let totalBrightness = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      totalBrightness += (r + g + b) / 3;
+    }
+    const averageBrightness = totalBrightness / (data.length / 4);
+    return averageBrightness < 10; // Threshold for black/dark image
+  }
+
   async captureImage() {
     if (!this.videoElement || !this.canvasElement) {
       return;
@@ -161,6 +188,15 @@ export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Check if the image is black
+      if (this.isImageBlack(canvas)) {
+        console.log('Black image detected, skipping save and retrying capture.');
+        // Try to capture again after a short delay
+        setTimeout(() => this.captureImage(), 1000);
+        return;
+      }
+
       const imageDataUrl = canvas.toDataURL('image/png');
       const currentImages = this.capturedImages();
       currentImages.unshift(imageDataUrl); // Add to beginning

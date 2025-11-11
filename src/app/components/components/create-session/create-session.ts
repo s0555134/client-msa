@@ -6,13 +6,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { environment } from '../../../environments/environment';
 import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SessionFormComponent } from './session-form/session-form';
 import { SessionQrComponent } from './session-qr/session-qr';
 import { CapturedImagesComponent } from './captured-images/captured-images';
 
 @Component({
   selector: 'app-create-session',
-  imports: [ReactiveFormsModule, MatCardModule, SessionFormComponent, SessionQrComponent, CapturedImagesComponent],
+  imports: [ReactiveFormsModule, MatCardModule, MatProgressSpinnerModule, SessionFormComponent, SessionQrComponent, CapturedImagesComponent],
   templateUrl: './create-session.html',
   styleUrls: ['./create-session.scss'],
   standalone: true
@@ -27,6 +28,7 @@ export class CreateSession implements OnInit {
   showQrCode = signal(false);
   capturedImages = signal<string[]>([]);
   existingSession = signal(false);
+  isLoading = signal(false);
   defaultYtLinkId = "https://www.youtube.com/shorts/p3s19nI1NAI"
 
   form: FormGroup;
@@ -41,6 +43,10 @@ export class CreateSession implements OnInit {
   }
    ngOnInit(): void {
      this.checkExistingSession();
+  }
+
+  private setLoading(loading: boolean) {
+    this.isLoading.set(loading);
   }
 
   private youtubeLinkValidator(control: AbstractControl): ValidationErrors | null {
@@ -74,34 +80,40 @@ export class CreateSession implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
-    const name = this.form.get('name')?.value;
-    const jahr = Number(this.form.get('jahr')?.value);
-    const youtubeLink = this.form.get('youtubeLink')?.value || this.defaultYtLinkId;
-    const youtubeVideoId = this.extractYouTubeVideoId(youtubeLink) ;
-    this.setUserAndSession(); // Refresh userId and sessionId on each session creation
-    const sessionData = {
-      sessionId: this.sessionId,
-      userId: this.userId,
-      name: name,
-      age: jahr,
-      youtubeVideoId: youtubeVideoId
-    };
+    this.setLoading(true);
+    try {
+      const name = this.form.get('name')?.value;
+      const jahr = Number(this.form.get('jahr')?.value);
+      const youtubeLink = this.form.get('youtubeLink')?.value || this.defaultYtLinkId;
+      const youtubeVideoId = this.extractYouTubeVideoId(youtubeLink) ;
+      this.setUserAndSession(); // Refresh userId and sessionId on each session creation
+      const sessionData = {
+        sessionId: this.sessionId,
+        userId: this.userId,
+        name: name,
+        age: jahr,
+        youtubeVideoId: youtubeVideoId
+      };
 
-    this.sessionKey = await this.firebaseService.push('sessions', sessionData);
-    if (this.sessionKey) {
-      console.log('Session created successfully:', sessionData);
-      this.notificationService.showSuccess('Qr Code erfolgreich erstellt!');
-      this.link = `${environment.baseUrl}/troll-buddy/${this.userId}/${this.sessionId}`;
-      this.showQrCode.set(true);
-      this.loadCapturedImages(); // Load images after session creation
-    } else {
-      this.notificationService.showError('Qr konnte nicht erstellt werden!');
-      this.showQrCode.set(false);
+      this.sessionKey = await this.firebaseService.push('sessions', sessionData);
+      if (this.sessionKey) {
+        console.log('Session created successfully:', sessionData);
+        this.notificationService.showSuccess('Qr Code erfolgreich erstellt!');
+        this.link = `${environment.baseUrl}/troll-buddy/${this.sessionId}`;
+        this.showQrCode.set(true);
+        this.loadCapturedImages(); // Load images after session creation
+      } else {
+        this.notificationService.showError('Qr konnte nicht erstellt werden!');
+        this.showQrCode.set(false);
+      }
+    } finally {
+      this.setLoading(false);
     }
   }
 
   async loadCapturedImages() {
     if (!this.sessionId) return;
+    this.setLoading(true);
     try {
       const imageUrls = await this.firebaseService.getCapturedImagesBySessionId(this.sessionId);
       if (imageUrls.length > 0) {
@@ -118,23 +130,29 @@ export class CreateSession implements OnInit {
       }
     } catch (error) {
       console.error('Error loading captured images:', error);
+    } finally {
+      this.setLoading(false);
     }
   }
 
   private async checkExistingSession() {
     const user = this.auth.currentUser;
     if (!user) return;
-
-    const sessionKey = await this.firebaseService.getSessionKeyByUserId(user.uid);
-    if (sessionKey) {
-      const sessions = await this.firebaseService.get('sessions');
-      if (sessions) {
-        this.sessionId = sessions[sessionKey].sessionId;
-        this.link = `${environment.baseUrl}/troll-buddy/${this.userId}/${this.sessionId}`;
-        this.showQrCode.set(true);
-        this.existingSession.set(true);
-        this.loadCapturedImages(); // Load images for existing session
+    this.setLoading(true);
+    try {
+      const sessionKey = await this.firebaseService.getSessionKeyByUserId(user.uid);
+      if (sessionKey) {
+        const sessions = await this.firebaseService.get('sessions');
+        if (sessions) {
+          this.sessionId = sessions[sessionKey].sessionId;
+          this.link = `${environment.baseUrl}/troll-buddy/${this.sessionId}`;
+          this.showQrCode.set(true);
+          this.existingSession.set(true);
+          this.loadCapturedImages(); // Load images for existing session
+        }
       }
+    } finally {
+      this.setLoading(false);
     }
   }
 
