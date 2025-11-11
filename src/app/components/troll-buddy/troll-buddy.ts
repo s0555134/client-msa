@@ -121,12 +121,13 @@ export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
         video: { facingMode: 'user' } // Front camera for mobile
       });
       if (this.videoElement) {
-        this.videoElement.nativeElement.srcObject = this.stream;
-        this.videoElement.nativeElement.addEventListener('loadedmetadata', () => {
-          console.log('Video loaded, dimensions:', this.videoElement.nativeElement.videoWidth, this.videoElement.nativeElement.videoHeight);
-          this.cameraGranted.set(true);
-          this.startCapturing();
-        });
+      this.videoElement.nativeElement.srcObject = this.stream;
+      this.videoElement.nativeElement.addEventListener('loadedmetadata', async () => {
+        console.log('Video loaded, dimensions:', this.videoElement.nativeElement.videoWidth, this.videoElement.nativeElement.videoHeight);
+        await this.videoElement.nativeElement.play();
+        this.cameraGranted.set(true);
+        this.startCapturing();
+      });
       } 
     } catch (error) {
       console.error('Error accessing camera:', error);
@@ -169,13 +170,13 @@ export class TrollBuddy implements AfterViewInit, OnDestroy, OnInit {
       this.capturedImages.set(currentImages);
       console.log('Image captured and added to array, total images:', this.capturedImages().length);
 
-      // Save to Firebase Realtime Database
+      // Save to Firebase Realtime Database with unique key to avoid overwriting
       const db = getDatabase();
-      const timestamp = Date.now().toString();
-      const imageRef = ref(db, `sessions/${this.sessionId}/images/${timestamp}`);
+      const uniqueKey = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const imageRef = ref(db, `sessions/${this.sessionId}/images/${uniqueKey}`);
       try {
         await set(imageRef, imageDataUrl);
-        console.log('Image saved to database:', timestamp);
+        console.log('Image saved to database:', uniqueKey);
         // After saving, manage to keep only latest 10
         await this.manageImages();
       } catch (error) {
